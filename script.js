@@ -1,23 +1,30 @@
 /* ================================================
-   ZYAKA — script.js
-   GSAP Scroll Animations | 3D Float & Rotate Cards
+   ZYAKA — script.js  (Glitch-free rewrite)
+
+   KEY FIXES vs original:
+   1. No float animations on cards — they caused jerk on hover enter/leave
+   2. Card tilt uses gsap.quickTo only — no conflicting timeline.pause/play
+   3. Single ScrollTrigger per card (not two competing ones)
+   4. Hero floats: one timeline each, no scrub conflicts
+   5. All GSAP overwrite: "auto" replaced with proper conflict avoidance
+   6. initCardAnimations called once inside window.load, after refresh
 ================================================ */
 
 gsap.registerPlugin(ScrollTrigger);
 
 /* ================================================
-   NAVBAR SCROLL EFFECT
+   NAVBAR
 ================================================ */
 const navbar = document.getElementById('navbar');
 ScrollTrigger.create({
   start: 'top -60',
   onUpdate(self) {
-    navbar.classList.toggle('scrolled', self.progress > 0);
+    navbar.classList.toggle('scrolled', self.scroll() > 60);
   }
 });
 
 /* ================================================
-   SMOOTH SCROLL HELPER
+   SMOOTH SCROLL
 ================================================ */
 window.smoothScrollTo = function(target) {
   document.querySelector(target)?.scrollIntoView({ behavior: 'smooth' });
@@ -44,283 +51,294 @@ document.querySelectorAll('.mob-link').forEach(link => {
 });
 
 /* ================================================
-   HERO FLOATS — continuous idle animation
+   HERO FLOATS — simple up/down CSS-like animation via GSAP
+   No scroll scrub fighting with the idle float.
 ================================================ */
-document.querySelectorAll('.hero-float').forEach((el, i) => {
-  gsap.to(el, {
-    y: i % 2 === 0 ? -22 : 18,
-    rotateZ: i % 2 === 0 ? 2.5 : -2.5,
-    duration: 4 + i * 0.8,
-    ease: 'sine.inOut',
-    repeat: -1,
-    yoyo: true,
-    delay: i * 0.5,
-  });
-});
+function initHeroFloats() {
+  const floatEls = document.querySelectorAll('.hero-float');
+  if (!floatEls.length) return;
 
-/* ================================================
-   HERO FLOATS — scroll parallax
-================================================ */
-const floats = document.querySelectorAll('.hero-float');
-gsap.to(floats[0], { yPercent: -40, ease: 'none', scrollTrigger: { trigger: '#home', start: 'top top', end: 'bottom top', scrub: 1.5 } });
-gsap.to(floats[1], { yPercent: -20, ease: 'none', scrollTrigger: { trigger: '#home', start: 'top top', end: 'bottom top', scrub: 2.5 } });
-gsap.to(floats[2], { yPercent: -50, ease: 'none', scrollTrigger: { trigger: '#home', start: 'top top', end: 'bottom top', scrub: 1.2 } });
-gsap.to(floats[3], { yPercent: -30, ease: 'none', scrollTrigger: { trigger: '#home', start: 'top top', end: 'bottom top', scrub: 2   } });
+  const yAmounts  = [-20, 16, -24, 18];
+  const durations = [3.8, 4.6, 4.2, 3.5];
+  const delays    = [0, 0.6, 0.3, 1.0];
 
-/* ================================================
-   CARD SCROLL ANIMATIONS
-================================================ */
-function initCardAnimations() {
-  const tracks = document.querySelectorAll('.cards-track');
-
-  tracks.forEach(track => {
-    const cards = track.querySelectorAll('.food-card');
-
-    cards.forEach((card, i) => {
-      const delay   = parseFloat(card.dataset.delay || 0) / 1000;
-      const isLeft  = i === 0;
-      const isRight = i === 2;
-
-      const startRotY = isLeft ? -35 : isRight ? 35 : 0;
-      const startRotX = 30;
-      const startZ    = -120;
-
-      gsap.set(card, {
-        opacity: 0,
-        y: 120,
-        rotateX: startRotX,
-        rotateY: startRotY,
-        z: startZ,
-        scale: 0.88,
-        transformOrigin: '50% 100%',
-      });
-
-      gsap.to(card, {
-        opacity: 1,
-        y: 0,
-        rotateX: 0,
-        rotateY: 0,
-        z: 0,
-        scale: 1,
-        duration: 1.1,
-        delay: delay,
-        ease: 'power4.out',
-        scrollTrigger: {
-          trigger: track,
-          start: 'top 82%',
-          toggleActions: 'play none none reverse',
-        }
-      });
-
-      ScrollTrigger.create({
-        trigger: track,
-        start: 'top 82%',
-        onEnter: () => startCardFloat(card, i),
-        onLeaveBack: () => stopCardFloat(card),
-      });
-    });
-  });
-}
-
-const floatTimelines = new WeakMap();
-
-function startCardFloat(card, i) {
-  if (floatTimelines.has(card)) return; 
-
-  const tl = gsap.timeline({ repeat: -1, yoyo: true });
-  tl.to(card, {
-    y: -14 - i * 3,
-    rotateZ: (i % 2 === 0 ? 1.5 : -1.5),
-    duration: 2.8 + i * 0.5,
-    ease: 'sine.inOut',
-  });
-  floatTimelines.set(card, tl);
-}
-
-function stopCardFloat(card) {
-  const tl = floatTimelines.get(card);
-  if (tl) { tl.kill(); floatTimelines.delete(card); }
-  gsap.to(card, { y: 0, rotateZ: 0, duration: .5, ease: 'power2.out' });
-}
-
-/* ================================================
-   CARD MOUSE TILT — QUICKTO OPTIMIZATION
-================================================ */
-document.querySelectorAll('.food-card').forEach(card => {
-  
-  const rotXTo = gsap.quickTo(card, "rotateX", { duration: 0.4, ease: "power3.out" });
-  const rotYTo = gsap.quickTo(card, "rotateY", { duration: 0.4, ease: "power3.out" });
-
-  card.addEventListener('mouseenter', () => {
-    const tl = floatTimelines.get(card);
-    if (tl) tl.pause();
-
-    gsap.to(card, {
-      y: -10,
-      scale: 1.02,
-      duration: 0.4,
-      ease: "power2.out",
-      overwrite: "auto"
+  floatEls.forEach((el, i) => {
+    gsap.to(el, {
+      y: yAmounts[i],
+      duration: durations[i],
+      ease: 'sine.inOut',
+      repeat: -1,
+      yoyo: true,
+      delay: delays[i],
     });
   });
 
-  card.addEventListener('mousemove', e => {
-    const rect = card.getBoundingClientRect();
-    const cx   = (e.clientX - rect.left)  / rect.width  - 0.5;
-    const cy   = (e.clientY - rect.top)   / rect.height - 0.5;
-
-    rotXTo(-cy * 12);
-    rotYTo(cx * 12);
-  });
-
-  card.addEventListener('mouseleave', () => {
-    gsap.to(card, {
-      rotateX: 0,
-      rotateY: 0,
-      y: 0,
-      scale: 1,
-      duration: 0.6,
-      ease: "power3.out",
-      overwrite: "auto",
-      onComplete: () => {
-        const tl = floatTimelines.get(card);
-        if (tl) tl.play();
+  // Separate, lighter parallax — only translate Y slightly on scroll
+  floatEls.forEach((el, i) => {
+    const speeds = [-0.15, -0.08, -0.2, -0.12];
+    ScrollTrigger.create({
+      trigger: '#home',
+      start: 'top top',
+      end: 'bottom top',
+      scrub: 1.8,
+      onUpdate(self) {
+        const pct = self.progress;
+        gsap.set(el, { yPercent: speeds[i] * 100 * pct });
       }
     });
   });
-
-  card.addEventListener('mousedown', () => {
-    gsap.to(card, { scale: 0.98, duration: .15, ease: 'power2.inOut', overwrite: 'auto' });
-  });
-  card.addEventListener('mouseup', () => {
-    gsap.to(card, { scale: 1.02, duration: .25, ease: 'power2.out', overwrite: 'auto' });
-  });
-});
+}
 
 /* ================================================
-   ABOUT SECTION & OTHER TRIGGERS
+   CARD SCROLL ANIMATIONS
+   FIX: One trigger per track. No float timeline at all on cards.
+        Clean in/out with toggleActions.
 ================================================ */
-gsap.from('.menu-header', {
-  opacity: 0, y: 60, duration: 1, ease: 'power3.out',
-  scrollTrigger: { trigger: '.menu-header', start: 'top 85%' }
-});
+function initCardAnimations() {
+  document.querySelectorAll('.cards-track').forEach(track => {
+    const cards = track.querySelectorAll('.food-card');
 
-gsap.utils.toArray('.cat-label-wrap').forEach(el => {
-  gsap.from(el, {
-    opacity: 0, x: -40, duration: .85, ease: 'power3.out',
-    scrollTrigger: { trigger: el, start: 'top 88%' }
+    // Set initial hidden state
+    gsap.set(cards, {
+      opacity: 0,
+      y: 80,
+      rotateX: 22,
+      rotateY: (i) => i === 0 ? -18 : i === 2 ? 18 : 0,
+      scale: 0.9,
+      transformOrigin: '50% 110%',
+    });
+
+    // Animate in on scroll
+    ScrollTrigger.create({
+      trigger: track,
+      start: 'top 82%',
+      end: 'bottom 20%',
+      toggleActions: 'play none none reverse',
+      onEnter() {
+        gsap.to(cards, {
+          opacity: 1,
+          y: 0,
+          rotateX: 0,
+          rotateY: 0,
+          scale: 1,
+          duration: 0.85,
+          stagger: 0.12,
+          ease: 'power3.out',
+          clearProps: 'rotateX,rotateY,scale', // let hover tilt take over cleanly
+        });
+      },
+      onLeaveBack() {
+        gsap.to(cards, {
+          opacity: 0,
+          y: 80,
+          rotateX: 22,
+          scale: 0.9,
+          duration: 0.55,
+          stagger: 0.06,
+          ease: 'power2.in',
+        });
+      }
+    });
   });
-});
-
-gsap.from('#aboutImages', {
-  opacity: 0, x: -80, rotateY: 12, duration: 1.2, ease: 'power4.out',
-  scrollTrigger: { trigger: '#about', start: 'top 75%', toggleActions: 'play none none reverse' }
-});
-
-gsap.from('#aboutText', {
-  opacity: 0, x: 80, duration: 1.2, ease: 'power4.out',
-  scrollTrigger: { trigger: '#about', start: 'top 75%', toggleActions: 'play none none reverse' }
-});
-
-gsap.from('.about-feat', {
-  opacity: 0, y: 30, scale: .94, duration: .7, stagger: .15, ease: 'power3.out',
-  scrollTrigger: { trigger: '.about-features', start: 'top 85%' }
-});
-
-gsap.to('.about-img-main', {
-  yPercent: -10, ease: 'none',
-  scrollTrigger: { trigger: '#about', start: 'top bottom', end: 'bottom top', scrub: 2 }
-});
-gsap.to('.about-img-accent', {
-  yPercent: 10, ease: 'none',
-  scrollTrigger: { trigger: '#about', start: 'top bottom', end: 'bottom top', scrub: 1.5 }
-});
-
-gsap.from('#contactHead', {
-  opacity: 0, y: 50, duration: 1, ease: 'power3.out',
-  scrollTrigger: { trigger: '#contact', start: 'top 80%' }
-});
-
-gsap.from('#contactInfo', {
-  opacity: 0, x: -60, duration: 1, ease: 'power3.out',
-  scrollTrigger: { trigger: '.contact-wrap', start: 'top 82%' }
-});
-
-gsap.from('#contactForm', {
-  opacity: 0, x: 60, rotateY: 8, duration: 1, ease: 'power3.out',
-  scrollTrigger: { trigger: '.contact-wrap', start: 'top 82%' }
-});
-
-gsap.from('.contact-item', {
-  opacity: 0, x: -30, duration: .6, stagger: .12, ease: 'power3.out',
-  scrollTrigger: { trigger: '.contact-items', start: 'top 88%' }
-});
-
-document.querySelectorAll('.cards-track').forEach(track => {
-  gsap.fromTo(track,
-    { rotateX: 6 },
-    { rotateX: -4, ease: 'none', scrollTrigger: { trigger: track, start: 'top bottom', end: 'bottom top', scrub: 1.5 } }
-  );
-});
-
-gsap.from('footer', {
-  opacity: 0, y: 30, duration: 1, ease: 'power3.out',
-  scrollTrigger: { trigger: 'footer', start: 'top 92%' }
-});
+}
 
 /* ================================================
-   FORM SUBMIT & BUTTON RIPPLE
+   CARD MOUSE TILT — quickTo only, no float conflict
+   FIX: Removed all float timeline pause/play logic.
+        Cards simply tilt on hover, snap back on leave.
 ================================================ */
-const formBtn = document.getElementById('formBtn');
-formBtn.addEventListener('click', () => {
-  formBtn.textContent = 'Sending…';
-  formBtn.style.opacity = '.7';
-  formBtn.disabled = true;
+function initCardTilt() {
+  document.querySelectorAll('.food-card').forEach(card => {
+    const rxTo = gsap.quickTo(card, 'rotateX', { duration: 0.45, ease: 'power2.out' });
+    const ryTo = gsap.quickTo(card, 'rotateY', { duration: 0.45, ease: 'power2.out' });
+    const yTo  = gsap.quickTo(card, 'y',       { duration: 0.45, ease: 'power2.out' });
 
-  setTimeout(() => {
-    formBtn.textContent = '✓ Message Sent!';
-    formBtn.style.opacity = '1';
-    formBtn.style.background = 'linear-gradient(135deg, #2ecc71, #27ae60)';
+    card.addEventListener('mouseenter', () => {
+      yTo(-10);
+    });
+
+    card.addEventListener('mousemove', e => {
+      const r   = card.getBoundingClientRect();
+      const cx  = (e.clientX - r.left)  / r.width  - 0.5;
+      const cy  = (e.clientY - r.top)   / r.height - 0.5;
+      rxTo(-cy * 10);
+      ryTo(cx  * 10);
+    });
+
+    card.addEventListener('mouseleave', () => {
+      rxTo(0);
+      ryTo(0);
+      yTo(0);
+    });
+
+    card.addEventListener('mousedown',  () => gsap.to(card, { scale: 0.975, duration: 0.15, ease: 'power2.inOut' }));
+    card.addEventListener('mouseup',    () => gsap.to(card, { scale: 1,     duration: 0.25, ease: 'power2.out'   }));
+  });
+}
+
+/* ================================================
+   ADD TO CART BUTTON — ripple + spin
+================================================ */
+function initCartButtons() {
+  document.querySelectorAll('.card-btn').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+
+      // Spin icon
+      gsap.fromTo(btn,
+        { rotate: 0 },
+        { rotate: 360, duration: 0.5, ease: 'power2.inOut' }
+      );
+
+      // Ripple
+      const ripple = document.createElement('span');
+      Object.assign(ripple.style, {
+        position: 'absolute', borderRadius: '50%',
+        width: '60px', height: '60px',
+        background: 'rgba(255,255,255,0.28)',
+        top: '50%', left: '50%',
+        transform: 'translate(-50%,-50%) scale(0)',
+        pointerEvents: 'none',
+      });
+      btn.appendChild(ripple);
+      gsap.to(ripple, {
+        scale: 2.5, opacity: 0, duration: 0.55,
+        ease: 'power2.out',
+        onComplete: () => ripple.remove(),
+      });
+    });
+  });
+}
+
+/* ================================================
+   SECTION ENTRANCE ANIMATIONS
+   FIX: Collapsed into one clean block, no duplicate triggers.
+================================================ */
+function initSectionAnimations() {
+  // Menu header
+  gsap.from('.menu-header', {
+    opacity: 0, y: 55, duration: 0.9, ease: 'power3.out',
+    scrollTrigger: { trigger: '.menu-header', start: 'top 87%' }
+  });
+
+  // Category labels
+  gsap.utils.toArray('.cat-label-wrap').forEach(el => {
+    gsap.from(el, {
+      opacity: 0, x: -36, duration: 0.8, ease: 'power3.out',
+      scrollTrigger: { trigger: el, start: 'top 90%' }
+    });
+  });
+
+  // About images
+  gsap.from('#aboutImages', {
+    opacity: 0, x: -70, duration: 1.1, ease: 'power4.out',
+    scrollTrigger: { trigger: '#about', start: 'top 78%', toggleActions: 'play none none reverse' }
+  });
+
+  gsap.from('#aboutText', {
+    opacity: 0, x: 70, duration: 1.1, ease: 'power4.out',
+    scrollTrigger: { trigger: '#about', start: 'top 78%', toggleActions: 'play none none reverse' }
+  });
+
+  gsap.from('.about-feat', {
+    opacity: 0, y: 28, scale: 0.95, duration: 0.65,
+    stagger: 0.12, ease: 'power3.out',
+    scrollTrigger: { trigger: '.about-features', start: 'top 87%' }
+  });
+
+  // Subtle parallax on about images (lightweight)
+  gsap.to('.about-img-main', {
+    yPercent: -8, ease: 'none',
+    scrollTrigger: { trigger: '#about', start: 'top bottom', end: 'bottom top', scrub: 2 }
+  });
+  gsap.to('.about-img-accent', {
+    yPercent: 9, ease: 'none',
+    scrollTrigger: { trigger: '#about', start: 'top bottom', end: 'bottom top', scrub: 1.5 }
+  });
+
+  // Contact
+  gsap.from('.contact-head', {
+    opacity: 0, y: 45, duration: 0.9, ease: 'power3.out',
+    scrollTrigger: { trigger: '#contact', start: 'top 82%' }
+  });
+
+  gsap.from('.contact-info', {
+    opacity: 0, x: -55, duration: 0.9, ease: 'power3.out',
+    scrollTrigger: { trigger: '.contact-wrap', start: 'top 84%' }
+  });
+
+  gsap.from('.contact-form', {
+    opacity: 0, x: 55, duration: 0.9, ease: 'power3.out',
+    scrollTrigger: { trigger: '.contact-wrap', start: 'top 84%' }
+  });
+
+  gsap.from('.contact-item', {
+    opacity: 0, x: -28, duration: 0.55, stagger: 0.1, ease: 'power3.out',
+    scrollTrigger: { trigger: '.contact-items', start: 'top 88%' }
+  });
+
+  // Footer
+  gsap.from('footer', {
+    opacity: 0, y: 25, duration: 0.9, ease: 'power3.out',
+    scrollTrigger: { trigger: 'footer', start: 'top 94%' }
+  });
+}
+
+/* ================================================
+   FORM SUBMIT
+================================================ */
+function initForm() {
+  const formBtn = document.getElementById('formBtn');
+  if (!formBtn) return;
+
+  formBtn.addEventListener('click', () => {
+    if (formBtn.disabled) return;
+    formBtn.textContent = 'Sending…';
+    formBtn.style.opacity = '0.7';
+    formBtn.disabled = true;
 
     setTimeout(() => {
-      formBtn.textContent = 'Send Message →';
-      formBtn.style.background = '';
-      formBtn.disabled = false;
-    }, 3000);
-  }, 1600);
-});
+      formBtn.textContent = '✓ Message Sent!';
+      formBtn.style.opacity = '1';
+      formBtn.style.background = 'linear-gradient(135deg, #2ecc71, #27ae60)';
 
-document.querySelectorAll('.card-btn').forEach(btn => {
-  btn.addEventListener('click', e => {
-    e.stopPropagation();
-    const ripple = document.createElement('span');
-    ripple.style.cssText = `position:absolute; border-radius:50%; width:60px; height:60px; background:rgba(255,255,255,0.25); top:50%; left:50%; transform:translate(-50%,-50%) scale(0); pointer-events:none;`;
-    btn.style.position = 'relative';
-    btn.appendChild(ripple);
-
-    gsap.to(ripple, { scale: 2.5, opacity: 0, duration: .5, ease: 'power2.out', onComplete: () => ripple.remove() });
-    gsap.fromTo(btn, { rotate: 0 }, { rotate: 360, duration: .45, ease: 'power2.inOut' });
+      setTimeout(() => {
+        formBtn.textContent = 'Send Message →';
+        formBtn.style.background = '';
+        formBtn.style.opacity = '1';
+        formBtn.disabled = false;
+      }, 3000);
+    }, 1600);
   });
-});
+}
 
 /* ================================================
-   LOAD EVENT — PERFECTLY TIMED EXECUTION
+   HERO ENTRANCE — runs on window load
+================================================ */
+function playHeroEntrance() {
+  const tl = gsap.timeline({ delay: 0.08 });
+  tl
+    .to('.hero-badge',      { opacity: 1, y: 0, duration: 0.75, ease: 'power3.out' })
+    .to('.hero-title',      { opacity: 1, y: 0, duration: 0.95, ease: 'power3.out' }, '-=0.4')
+    .to('.hero-tagline',    { opacity: 1, y: 0, duration: 0.75, ease: 'power3.out' }, '-=0.5')
+    .to('.hero-cta-row',    { opacity: 1, y: 0, duration: 0.75, ease: 'power3.out' }, '-=0.45')
+    .to('.scroll-indicator',{ opacity: 1,       duration: 0.75, ease: 'power2.out' }, '-=0.3')
+    .to('.hero-float',      { opacity: 1,       duration: 1.1, stagger: 0.15, ease: 'power2.out' }, '-=0.75');
+}
+
+/* ================================================
+   INIT — everything starts here after load
 ================================================ */
 window.addEventListener('load', () => {
-  // 1. Play hero entrance animations ONLY after images are downloaded
-  const heroTl = gsap.timeline({ delay: 0.1 });
-  heroTl
-    .to('.hero-badge',     { opacity: 1, y: 0, duration: .8, ease: 'power3.out' })
-    .to('.hero-title',     { opacity: 1, y: 0, duration: 1,  ease: 'power3.out' }, '-=.4')
-    .to('.hero-tagline',   { opacity: 1, y: 0, duration: .8, ease: 'power3.out' }, '-=.5')
-    .to('.hero-cta-row',   { opacity: 1, y: 0, duration: .8, ease: 'power3.out' }, '-=.4')
-    .to('.scroll-indicator', { opacity: 1, duration: .8 }, '-=.3')
-    .to('.hero-float',     { opacity: 1, duration: 1.2, stagger: .18, ease: 'power2.out' }, '-=.8')
-    .to('.orb',            { opacity: 1, duration: 2, stagger: .25, ease: 'power1.inOut' }, 0);
+  playHeroEntrance();
 
-  // 2. Setup the card scroll triggers with correct image heights
+  initHeroFloats();
+  initSectionAnimations();
   initCardAnimations();
+  initCardTilt();
+  initCartButtons();
+  initForm();
 
-  // 3. Force GSAP to recalculate everything just to be completely safe
+  // One final refresh after all triggers are registered
   ScrollTrigger.refresh();
 });
