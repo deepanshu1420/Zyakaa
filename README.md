@@ -54,6 +54,10 @@ This project is built using core web technologies, keeping it lightweight and in
 ![Contact](screenshots/contact.png)
 *Clean contact interface with user-friendly form and details.*
 
+### 📱 Responsive Design
+![Responsive](screenshots/responsive.png)
+*Optimized layout ensuring a seamless experience across all devices.*
+
 ## 💻 Setup & Installation
 
 To explore and run this project locally on your machine, follow these simple steps:
