@@ -32,6 +32,24 @@ This project is built using core web technologies, keeping it lightweight and in
 - **CSS3:** For styling, custom animations, and complex glassmorphism effects.
 - **JavaScript (Vanilla):** For dynamic interactions and DOM manipulation.
 
+## 📸 Screenshots
+
+### 🏠 Home
+![Home](screenshots/home.png)
+*Landing section with a premium hero layout, animations, and call-to-action.*
+
+### 🍛 Our Zyakaa
+![Our Zyakaa](screenshots/our_zyakaa.png)
+*Curated menu display with interactive food cards and smooth hover effects.*
+
+### 📖 About
+![About](screenshots/about.png)
+*Story-driven section highlighting heritage with layered visuals.*
+
+### 📩 Contact
+![Contact](screenshots/contact.png)
+*Clean contact interface with user-friendly form and details.*
+
 ## 💻 Setup & Installation
 
 To explore and run this project locally on your machine, follow these simple steps:
@@ -49,5 +67,4 @@ To explore and run this project locally on your machine, follow these simple ste
 3.  **Run the application:**
     Simply open the `index.html` file in your preferred web browser to view the site. No local server, `npm` installs, or build steps are required!
 
----
 *Developed by Deepanshu Sharma*
