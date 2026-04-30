@@ -42,7 +42,7 @@ This project is built using core web technologies, keeping it lightweight and in
 ![Our Zyakaa](screenshots/our_zyakaa.png)
 *Curated menu display with interactive food cards and smooth hover effects.*
 
-### 📖 About
+### 📜 About
 ![About](screenshots/about.png)
 *Story-driven section highlighting heritage with layered visuals.*
 
