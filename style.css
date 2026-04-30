@@ -312,4 +312,12 @@ footer { padding: 24px 5vw; background: var(--bg); display: grid; grid-template-
   }
 }
 
+@media (max-width: 768px) {
+  .about-stat {
+    bottom: auto;      
+    top: 75px;       
+    right: 10px;       
+  }
+}
+
 
