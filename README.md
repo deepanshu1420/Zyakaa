@@ -13,17 +13,17 @@ Welcome to **Zyakaa**, a visually stunning and appetizing restaurant web interfa
 
 ## 🖱️ Interactive and Modern UI
 
-- **🧭 Seamless Navigation:** Enjoy fluid transitions and an intuitive layout that makes browsing the culinary menu completely effortless.
-- **✨ Dynamic Interactions:** Engaging hover states and micro-interactions bring the food cards to life as you explore the interface.
-- **📱 Fully Responsive:** Carefully optimized to ensure a flawless, pixel-perfect experience across mobile, tablet, and desktop screens.
-- **⚡ Instant Feedback:** Real-time visual cues respond instantly to user clicks and inputs, ensuring a highly responsive and engaging feel.
+- **🧭 Seamless Navigation:** Smooth flow with an intuitive, easy-to-use layout.
+- **✨ Dynamic Interactions:** Subtle hover effects and micro-animations enhance engagement.
+- **📱 Fully Responsive:** Optimized for a consistent experience across all devices.
+- **⚡ Instant Feedback:** Quick visual responses to every user action.
 
 ## 💎 Sleek & Glassmorphic Design
 
-- **🪞 Frosted Glass Effect:** Utilizes trendy, translucent background panels with background-blur that create a stunning sense of depth.
-- **🎨 Vibrant Gradients:** Carefully curated, colorful background gradients that perfectly complement and make the rich food imagery pop.
-- **🖋️ Elegant Typography:** Clean, modern, and highly legible fonts that elevate the overall premium aesthetic of the restaurant brand.
-- **☁️ Soft Shadows & Borders:** Smooth, rounded corners paired with subtle drop shadows to complete the polished, floating UI look.
+- **🪞 Frosted Glass Effect:** Translucent layers with blur for depth and elegance.
+- **🎨 Vibrant Gradients:** Rich color blends that elevate visual appeal.
+- **🖋️ Elegant Typography:** Clean, readable fonts with a premium feel.
+- **☁️ Soft Shadows & Borders:** Rounded edges with subtle shadows for a polished look.
 
 ## 🛠️ Tech Stack
 
