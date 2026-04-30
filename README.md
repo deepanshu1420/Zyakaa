@@ -9,7 +9,7 @@
 
 Welcome to **Zyakaa**, a visually stunning and appetizing restaurant web interface. Designed to highlight rich culinary offerings - like Biryani, Shahi Paneer and traditional Thalis, this project focuses on delivering a premium user experience through cutting-edge web design aesthetics. 
 
-🚀 **Live Demo :** [enjoy our zyakaa!](https://zyakaa.vercel.app/)
+**🌐 Live Demo :** [enjoy our zyakaa!](https://zyakaa.vercel.app/)
 
 ## 🎯 Interactive and Modern UI
 
