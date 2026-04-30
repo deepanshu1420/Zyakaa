@@ -42,7 +42,7 @@ This project is built using core web technologies, keeping it lightweight and in
 
 ### 🍛 Food Items
 ![Food Items](screenshots/food_items.png)
-*Detailed view of dishes showcasing rich visuals, pricing and discounts*
+*Detailed view of dishes showcasing rich visuals, pricing and discounts.*
 
 ### 📜 About
 ![About](screenshots/about.png)
