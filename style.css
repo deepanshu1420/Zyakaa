@@ -305,4 +305,11 @@ footer { padding: 24px 5vw; background: var(--bg); display: grid; grid-template-
   section { padding: 80px 5vw; }
 }
 
+@media (max-width: 768px) {
+  .footer-copy-mobile {
+    text-align: left;
+    margin-left: 10px; 
+  }
+}
+
 
