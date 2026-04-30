@@ -38,9 +38,13 @@ This project is built using core web technologies, keeping it lightweight and in
 ![Home](screenshots/home.png)
 *Landing section with a premium hero layout, animations, and call-to-action.*
 
-### 🍛 Our Zyakaa
+### 🍽️ Our Zyakaa
 ![Our Zyakaa](screenshots/our_zyakaa.png)
 *Curated menu display with interactive food cards and smooth hover effects.*
+
+### 🍛 Food Items
+![Food Items](screenshots/food_items.png)
+*Detailed view of dishes showcasing rich visuals, pricing and discounts*
 
 ### 📜 About
 ![About](screenshots/about.png)
