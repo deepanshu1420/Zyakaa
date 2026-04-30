@@ -11,7 +11,7 @@ Welcome to **Zyakaa**, a visually stunning and appetizing restaurant web interfa
 
 🚀 **Live Demo :** [enjoy our zyakaa!](https://zyakaa.vercel.app/)
 
-## 🖱️ Interactive and Modern UI
+## 🎯 Interactive and Modern UI
 
 - **🧭 Seamless Navigation:** Smooth flow with an intuitive, easy-to-use layout.
 - **✨ Dynamic Interactions:** Subtle hover effects and micro-animations enhance engagement.
