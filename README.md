@@ -5,8 +5,6 @@
 ![JavaScript](https://img.shields.io/badge/javascript-%23323330.svg?style=for-the-badge&logo=javascript&logoColor=%23F7DF1E)
 ![Vercel](https://img.shields.io/badge/vercel-%23000000.svg?style=for-the-badge&logo=vercel&logoColor=white)
 
-## 📖 Introduction
-
 Welcome to **Zyakaa**, a visually stunning and appetizing restaurant web interface. Designed to highlight rich culinary offerings - like Biryani, Shahi Paneer and traditional Thalis, this project focuses on delivering a premium user experience through cutting-edge web design aesthetics. 
 
 **🌐 Live Demo :** [enjoy our zyakaa!](https://zyakaa.vercel.app/)
