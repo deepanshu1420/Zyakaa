@@ -66,5 +66,3 @@ To explore and run this project locally on your machine, follow these simple ste
 
 3.  **Run the application:**
     Simply open the `index.html` file in your preferred web browser to view the site. No local server, `npm` installs, or build steps are required!
-
-*Developed by Deepanshu Sharma*
